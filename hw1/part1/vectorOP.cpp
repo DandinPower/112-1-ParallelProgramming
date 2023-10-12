@@ -49,8 +49,61 @@ void clampedExpVector(float *values, int *exponents, float *output, int N)
   // Your solution should work for any value of
   // N and VECTOR_WIDTH, not just when VECTOR_WIDTH divides N
   //
+  __pp_vec_float x, result;
+  __pp_vec_int y;
+  __pp_mask maskAll, zeroLike, nonZeroLike, newZeroLike, nonNewZeroLike, resultNeedClampMask;
+
+  __pp_vec_int zero = _pp_vset_int(0);
+  __pp_vec_int one = _pp_vset_int(1);
+
   for (int i = 0; i < N; i += VECTOR_WIDTH)
   {
+    // All ones
+    maskAll = _pp_init_ones();
+    
+    // All zeros
+    zeroLike = _pp_init_ones(0);
+
+    if ((N - i) < VECTOR_WIDTH) {
+      i -= (VECTOR_WIDTH - (N - i));
+    }
+
+    // Load vector of values from contiguous memory addresses
+    _pp_vload_float(x, values + i, maskAll); // x = values[i];
+
+    // Load vector of values from contiguous memory addresses
+    _pp_vload_int(y, exponents + i, maskAll); // y = exponents[i];
+
+    // Mask the zero index into zeroLike
+    _pp_veq_int(zeroLike, zero, y, maskAll);
+
+    // Set the result value to 1.f based on zeroLike Mask
+    _pp_vset_float(result, 1.f, zeroLike);
+
+    // Inverse zeroLike to generate "else" mask
+    nonZeroLike = _pp_mask_not(zeroLike);
+
+    // Set result to its value
+    _pp_vmove_float(result, x, nonZeroLike);
+
+    // Loop until every value finished its exponential calculation
+    while (_pp_cntbits(nonZeroLike) != 0) {
+      _pp_vsub_int(y, y, one, nonZeroLike);
+      newZeroLike = _pp_init_ones(0);
+      _pp_veq_int(newZeroLike, zero, y, nonZeroLike);
+      nonNewZeroLike = _pp_mask_not(newZeroLike);
+      nonZeroLike = _pp_mask_and(nonNewZeroLike, nonZeroLike);
+      _pp_vmult_float(result, result, x, nonZeroLike);
+    }
+    __pp_vec_float clampMaximum = _pp_vset_float(9.999999f);
+    _pp_vlt_float(resultNeedClampMask, result, clampMaximum, maskAll);
+    resultNeedClampMask = _pp_mask_not(resultNeedClampMask);
+
+    _pp_vset_float(result, 9.999999f, resultNeedClampMask);
+
+    // Write results back to memory
+    _pp_vstore_float(output + i, result, maskAll);
+
   }
 }
 
