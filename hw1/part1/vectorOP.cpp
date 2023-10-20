@@ -123,7 +123,7 @@ float arraySumVector(float *values, int N)
   __pp_mask traverseMask = _pp_init_ones();
   __pp_vec_float valuesVector;
   __pp_vec_float storeVector = _pp_vset_float(0.f);
-  float result = 0.f;
+  float result[VECTOR_WIDTH];
 
   // 先將每個vector疊在一個store vector上
   for (int i = 0; i < N; i += VECTOR_WIDTH)
@@ -137,7 +137,11 @@ float arraySumVector(float *values, int N)
       _pp_hadd_float(storeVector, storeVector);
       _pp_interleave_float(storeVector, storeVector);
   }
-    
-  return storeVector.value[0];
+
+  // 儲存result到scaler array
+  __pp_mask resultMask = _pp_init_ones(1);
+  _pp_vstore_float(result, storeVector, resultMask);
+
+  return result[0];
 }
 
