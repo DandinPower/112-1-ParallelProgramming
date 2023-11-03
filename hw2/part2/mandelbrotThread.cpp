@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <thread>
+#include <cmath>
 
 #include "CycleTimer.h"
 
@@ -13,6 +14,8 @@ typedef struct
     int *output;
     int threadId;
     int numThreads;
+    double startTime;
+    double endTime;
 } WorkerArgs;
 
 extern void mandelbrotSerial(
@@ -28,7 +31,6 @@ extern void mandelbrotSerial(
 // Thread entrypoint.
 void workerThreadStart(WorkerArgs *const args)
 {
-
     // TODO FOR PP STUDENTS: Implement the body of the worker
     // thread here. Each thread could make a call to mandelbrotSerial()
     // to compute a part of the output image. For example, in a
@@ -36,8 +38,10 @@ void workerThreadStart(WorkerArgs *const args)
     // half of the image and thread 1 could compute the bottom half.
     // Of course, you can copy mandelbrotSerial() to this file and 
     // modify it to pursue a better performance.
-
-    printf("Hello world from thread %d\n", args->threadId);
+    int startRow = std::ceil(args->height * static_cast<double>(args->threadId) / args->numThreads);
+    int endRow = std::ceil(args->height * static_cast<double>(args->threadId + 1) / args->numThreads);
+    int totalRows = endRow - startRow;
+    mandelbrotSerial(args->x0, args->y0, args->x1, args->y1, args->width, args->height, startRow, totalRows, args->maxIterations, args->output);
 }
 
 //
@@ -86,14 +90,23 @@ void mandelbrotThread(
     // as well.
     for (int i = 1; i < numThreads; i++)
     {
+        args[i].startTime = CycleTimer::currentSeconds();
         workers[i] = std::thread(workerThreadStart, &args[i]);
     }
-
-    workerThreadStart(&args[0]);
 
     // join worker threads
     for (int i = 1; i < numThreads; i++)
     {
         workers[i].join();
+        args[i].endTime = CycleTimer::currentSeconds();
+    }
+
+    args[0].startTime = CycleTimer::currentSeconds();
+    workerThreadStart(&args[0]);
+    args[0].endTime = CycleTimer::currentSeconds();
+
+    for (int i = 0; i < numThreads; i++)
+    {
+        printf("[thread %d]:\t\t\t[%.3f] ms\n", i, (args[i].endTime - args[i].startTime) * 1000);
     }
 }
