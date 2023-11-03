@@ -10,7 +10,7 @@ double randomDouble(double min, double max) {
 int main(void) {
     srand(time(NULL));
     unsigned long long number_in_circle = 0;
-    unsigned long long number_of_tosses = 5e8;
+    unsigned long long number_of_tosses = 1e8;
     double x, y, distance_squared, pi_estimate;
 
     for (int toss = 0; toss < number_of_tosses; toss ++) {
