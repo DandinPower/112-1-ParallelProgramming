@@ -94,16 +94,16 @@ void mandelbrotThread(
         workers[i] = std::thread(workerThreadStart, &args[i]);
     }
 
+    args[0].startTime = CycleTimer::currentSeconds();
+    workerThreadStart(&args[0]);
+    args[0].endTime = CycleTimer::currentSeconds();
+
     // join worker threads
     for (int i = 1; i < numThreads; i++)
     {
         workers[i].join();
         args[i].endTime = CycleTimer::currentSeconds();
     }
-
-    args[0].startTime = CycleTimer::currentSeconds();
-    workerThreadStart(&args[0]);
-    args[0].endTime = CycleTimer::currentSeconds();
 
     for (int i = 0; i < numThreads; i++)
     {
