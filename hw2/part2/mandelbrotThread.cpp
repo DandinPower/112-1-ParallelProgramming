@@ -4,6 +4,7 @@
 
 #include "CycleTimer.h"
 
+const unsigned int ROWS_PER_THREAD = 1;
 typedef struct
 {
     float x0, x1;
@@ -38,10 +39,21 @@ void workerThreadStart(WorkerArgs *const args)
     // half of the image and thread 1 could compute the bottom half.
     // Of course, you can copy mandelbrotSerial() to this file and 
     // modify it to pursue a better performance.
-    int startRow = std::ceil(args->height * static_cast<double>(args->threadId) / args->numThreads);
-    int endRow = std::ceil(args->height * static_cast<double>(args->threadId + 1) / args->numThreads);
-    int totalRows = endRow - startRow;
-    mandelbrotSerial(args->x0, args->y0, args->x1, args->y1, args->width, args->height, startRow, totalRows, args->maxIterations, args->output);
+
+    // original version (spatial decomposition, but can't reach linear speedup)
+    // int startRow = std::ceil(args->height * static_cast<double>(args->threadId) / args->numThreads);
+    // int endRow = std::ceil(args->height * static_cast<double>(args->threadId + 1) / args->numThreads);
+    // int totalRows = endRow - startRow;
+    // mandelbrotSerial(args->x0, args->y0, args->x1, args->y1, args->width, args->height, startRow, totalRows, args->maxIterations, args->output);
+
+    // improved version (spatial decomposition, but with by row slicing)
+    
+    for (unsigned int i = args->threadId * ROWS_PER_THREAD; i < args->height; i += (args->numThreads * ROWS_PER_THREAD)) {
+        int totalRows = std::min(args->height - i, ROWS_PER_THREAD);
+        totalRows = std::max(totalRows, 0);
+        mandelbrotSerial(args->x0, args->y0, args->x1, args->y1, args->width, args->height, i, totalRows, args->maxIterations, args->output);
+    }
+
 }
 
 //
