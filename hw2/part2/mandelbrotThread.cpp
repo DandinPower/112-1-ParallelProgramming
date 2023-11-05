@@ -39,6 +39,7 @@ void workerThreadStart(WorkerArgs *const args)
     // half of the image and thread 1 could compute the bottom half.
     // Of course, you can copy mandelbrotSerial() to this file and 
     // modify it to pursue a better performance.
+    args->startTime = CycleTimer::currentSeconds();
 
     // original version (spatial decomposition, but can't reach linear speedup)
     // int startRow = std::ceil(args->height * static_cast<double>(args->threadId) / args->numThreads);
@@ -54,6 +55,7 @@ void workerThreadStart(WorkerArgs *const args)
         mandelbrotSerial(args->x0, args->y0, args->x1, args->y1, args->width, args->height, i, totalRows, args->maxIterations, args->output);
     }
 
+    args->endTime = CycleTimer::currentSeconds();
 }
 
 //
@@ -102,19 +104,15 @@ void mandelbrotThread(
     // as well.
     for (int i = 1; i < numThreads; i++)
     {
-        args[i].startTime = CycleTimer::currentSeconds();
         workers[i] = std::thread(workerThreadStart, &args[i]);
     }
 
-    args[0].startTime = CycleTimer::currentSeconds();
     workerThreadStart(&args[0]);
-    args[0].endTime = CycleTimer::currentSeconds();
 
     // join worker threads
     for (int i = 1; i < numThreads; i++)
     {
         workers[i].join();
-        args[i].endTime = CycleTimer::currentSeconds();
     }
 
     for (int i = 0; i < numThreads; i++)
