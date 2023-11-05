@@ -1,4 +1,3 @@
-```
 # Installation Instructions
 
 First, install Python3 and its related packages on your system:
@@ -78,4 +77,3 @@ To run the different evaluations, follow the instructions below:
 4. Compile the file by `make`.
 5. Run the evaluation by `bash evaluation.sh`.
 6. The results will appear in the `evaluation_logs/improved/view1` and `evaluation_logs/improved/view2`.
-```
