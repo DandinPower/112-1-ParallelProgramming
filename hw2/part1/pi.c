@@ -43,8 +43,11 @@ int main(int argc, char *argv[]) {
     
     pthread_t threads[number_of_threads];
     int tosses_per_thread = number_of_tosses / number_of_threads;
+    int remain = number_of_tosses;
     for (int i = 0; i < number_of_threads; i++) {
-        pthread_create(&threads[i], NULL, toss, &tosses_per_thread);
+        int min = remain < tosses_per_thread ? remain : tosses_per_thread;
+        pthread_create(&threads[i], NULL, toss, &min);
+        remain -= tosses_per_thread;
     }
     for (int i = 0; i < number_of_threads; i++) {
         pthread_join(threads[i], NULL);

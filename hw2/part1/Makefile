@@ -1,6 +1,6 @@
 # Compiler and compilation flags
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -O2
 LDFLAGS=-lpthread
 
 all: pi
