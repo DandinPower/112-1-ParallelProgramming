@@ -11,8 +11,8 @@ TARGET = example
 
 all: $(TARGET)
 
-$(TARGET): example_worksharing.cpp
-	$(CC) $(CFLAGS) -o $(TARGET) example_worksharing.cpp
+$(TARGET): example_synch.cpp
+	$(CC) $(CFLAGS) -o $(TARGET) example_synch.cpp
 
 clean:
 	rm -f $(TARGET)
