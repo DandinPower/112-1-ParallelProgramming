@@ -28,7 +28,7 @@
 
 ### Setup every Machine ssh config
 
-- go to every machine and run the following scripts
+- use ssh go to every machine and run the following scripts
     ```bash
     mkdir -p ~/.ssh
     export PUB_KEY="local machine ssh public key"
