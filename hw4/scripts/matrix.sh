@@ -11,8 +11,6 @@ SOURCE_DIR="../src"
 DATASET_DIR="../data-set"
 DATASET_TARGET="data2_6"
 DATASET_ANSWER="ans2_6"
-# DATASET_TARGET="data1_1"
-# DATASET_ANSWER="ans1_1"
 
 # Some setting for synchronize different node
 CURRENT_DIR=$(pwd)
