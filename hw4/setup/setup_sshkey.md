@@ -4,7 +4,6 @@
     ```bash
     mkdir -p ~/.ssh
     ssh-keygen -t rsa
-    cat ~/.ssh./id_rsa.pub
     ```
 
 ### Copy config into ssh folder
@@ -28,9 +27,22 @@
 
 ### Setup every Machine ssh config
 
+- create hosts.txt
+    ```plaintext
+    pp2
+    pp3
+    pp4
+    pp5
+    pp6
+    pp7
+    pp8
+    pp9
+    pp10
+    ```
+
 - use ssh go to every machine and run the following scripts
     ```bash
-    mkdir -p ~/.ssh
-    export PUB_KEY="local machine ssh public key"
-    echo $PUB_KEY >> ~/.ssh/authorized_keys
+    rm -f ~/.ssh/authorized_keys
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    parallel-scp -A -h hosts.txt -r ~/.ssh ~
     ```
