@@ -15,6 +15,8 @@ CURRENT_DIR=$(pwd)
 HOME_DIR=$HOME
 SUB_DIR=${CURRENT_DIR#$HOME_DIR/}
 
+rm hosts mpi_hosts
+
 # Create a hosts file
 printf "%s\n" "${HOSTS[@]}" > hosts
 # Create a mpi_hosts file with slots
@@ -70,6 +72,8 @@ for i in "${!DATASETS[@]}"; do
 
 done
 
+# Clean up files on remote hosts in parallel
+  parallel-ssh -h hosts -i "rm -rf ~/$SUB_DIR"
 # Local clean up
 rm $TARGET1 $TARGET2 $MAKEFILE_TARGET
 rm matmul hosts result.log extracted_matrix

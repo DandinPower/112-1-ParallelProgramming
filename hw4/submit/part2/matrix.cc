@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <mpi.h>
+#include <string.h>
 
 int world_rank, world_size;
 
@@ -38,6 +39,7 @@ void matrix_multiply(const int n, const int m, const int l,
     
     int pad_n = make_multiple_of_N(n, world_size);
     int *pad_result = new int[pad_n * l]();
+    memset(pad_result, 0, pad_n * l * sizeof(int));
 
     // for(int i = 0; i < n; i++)
     //     for(int j = 0; j < l; j++)
@@ -47,11 +49,14 @@ void matrix_multiply(const int n, const int m, const int l,
     int each_element = each_row * l;
     int start_row = world_rank * each_row;
     int end_row = start_row + each_row;
-    for(int i = start_row; i < end_row; i++)
-        for(int j = 0; j < l; j++)
-            for(int k = 0; k < m; k++)
-                pad_result[i * l + j] += a_mat[i * m + k] * b_mat[k * l + j];
-    
+    for(int i = start_row; i < end_row; i++) {
+        for(int k = 0; k < m; k++) {
+            int temp = a_mat[i * m + k];
+            for(int j = 0; j < l; j++)
+                pad_result[i * l + j] += temp * b_mat[k * l + j];
+        }
+    }
+        
     MPI_Gather(pad_result + (world_rank * each_element), each_element, MPI_INT, pad_result, each_element, MPI_INT, 0, MPI_COMM_WORLD);
     
     if (world_rank == 0) {
