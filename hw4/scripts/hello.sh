@@ -1,6 +1,7 @@
 # Define hosts and target file
 HOSTS=("pp2" "pp3" "pp4" "pp5")
 TARGET="hello.cc"
+SOURCE_DIR="../src"
 CURRENT_DIR=$(pwd)
 HOME_DIR=$HOME
 SUB_DIR=${CURRENT_DIR#$HOME_DIR/}
@@ -9,7 +10,7 @@ SUB_DIR=${CURRENT_DIR#$HOME_DIR/}
 printf "%s\n" "${HOSTS[@]}" > hosts
 
 # Compile executable
-cp ../src/$TARGET .
+cp $SOURCE_DIR/$TARGET .
 mpicxx ./$TARGET -o mpi_executable
 
 # Create directories in parallel on each host
