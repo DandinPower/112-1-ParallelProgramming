@@ -8,7 +8,7 @@ TARGET2="matrix.cc"
 MAKEFILE_TARGET="Makefile"
 SOURCE_DIR="../src"
 
-DATASET_DIR="../data-set"
+DATASET_DIR="/home/.grade/HW4/data-set"
 
 # Some setting for synchronize different node
 CURRENT_DIR=$(pwd)
