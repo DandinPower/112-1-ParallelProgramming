@@ -40,11 +40,16 @@ __device__ static inline int mandel(float c_re, float c_im, int count) {
     return i;
 }
 
-__global__ void mandelKernel(int *dev_output, float stepX, float stepY, float lowerX, float lowerY, int maxIterations) {
+__global__ void mandelKernel(int *dev_output, float stepX, float stepY, float lowerX, float lowerY, int maxIterations, int resX, int resY) {
     // To avoid error caused by the floating number, use the following pseudo
     // code
     int thisX = blockIdx.x * blockDim.x + threadIdx.x;
     int thisY = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (thisX >= resX || thisY >= resY) {
+        return;
+    }
+
     float x = lowerX + thisX * stepX;
     float y = lowerY + thisY * stepY;
     int index = thisY * gridDim.x * blockDim.x + thisX;
@@ -68,7 +73,7 @@ void hostFE(float upperX, float upperY, float lowerX, float lowerY, int* img,
     dim3 num_blocks((resX + threads_per_block.x - 1) / threads_per_block.x, (resY + threads_per_block.y - 1) / threads_per_block.y);
 
     // launch the kernel
-    mandelKernel<<<num_blocks, threads_per_block>>>(dev_output, stepX, stepY, lowerX, lowerY, maxIterations);
+    mandelKernel<<<num_blocks, threads_per_block>>>(dev_output, stepX, stepY, lowerX, lowerY, maxIterations, resX, resY);
 
     // copy the output back to host
     cudaMemcpy(output, dev_output, resX * resY * sizeof(int), cudaMemcpyDeviceToHost);
